@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset="UTF-8">
+      <title>Most Basic Media Center</title>
+      <link rel="stylesheet" href="bootstrap.min.css">
+      <link rel="stylesheet" href="main.css">
+      <style type="text/css">
+          html, body {
+              height: 100%;
+              margin: 0;
+          }
+
+          #wrapper {
+              height: 100%;
+              overflow: hidden;
+          }
+      </style>
+  </head>
+  <body>
+
+  <div id="wrapper">
+      <ul class="list-group px-5" id="listgroup"></ul>
+  </div>
+
+  <script>
+      // You can also require other files to run in this process
+      window.$ = window.jQuery = require('./jquery-3.3.1.slim.min');
+      require('./renderer.js');
+    </script>
+  </body>
+</html>
