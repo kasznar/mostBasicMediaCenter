@@ -12,7 +12,7 @@ var popUpContent = document.getElementById('pop-up-content');
 
 //Event listeners
 
-
+var isItRaspberry = "true";
 
 var liSelected;
 var li;
@@ -152,11 +152,10 @@ function handleInput(input) {
         case 'player':
             switch (input){
                 case 'enter':
-                    pauseMplayer();
+                    pausePlayer();
                     break;
                 case 'secondary':
-                    terminal.stdin.write('quit\n');
-                    terminal.stdin.end();
+                    quitPlayer();
                     break;
             }
             break;
@@ -230,15 +229,32 @@ function listDirectory(directoryPath){
     updateListView();
 }
 
-function pauseMplayer() {
-    terminal.stdin.write('pause\n');
+function quitPlayer() {
+    if(isItRaspberry){
+        terminal.stdin.write('q');
+    }else{
+        terminal.stdin.write('quit\n');
+    }
+    terminal.stdin.end();
+}
+
+function pausePlayer() {
+    if(isItRaspberry){
+        terminal.stdin.write('p');
+    }else{
+        terminal.stdin.write('pause\n');
+    }
 }
 
 
 function openVideo(videoPath) {
     //mplayer fullscreen arg: -fs
     if(!terminal){
-        terminal = require('child_process').spawn('mplayer',['-slave','-fs','-quiet',videoPath]);
+        if(isItRaspberry){
+            terminal = require('child_process').spawn('omxplayer',[videoPath]);
+        }else{
+            terminal = require('child_process').spawn('mplayer',['-slave','-fs','-quiet',videoPath]);
+        }
     } else{
         console.log("already opened");
     }
@@ -253,16 +269,18 @@ function openVideo(videoPath) {
         console.log('child process exited with code ' + code);
         terminal = null;
         activeState = 'fileList';
+        $('#overlay').hide();
     });
 
     activeState = 'player';
+    $('#overlay').show();
 
 }
 
 
 //Execute
 
-listDirectory('/home/kasznar/Videos');
+listDirectory('/home/');
 
 
 //Express Server
@@ -290,7 +308,7 @@ app.get('/list-up', function (req, res) {
 });
 
 app.get('/pause', function (req, res) {
-    pauseMplayer();
+    pausePlayer();
     res.send('pause');
 });
 
@@ -300,7 +318,7 @@ app.get('/open', function (req, res) {
 });
 
 app.get('/exit', function (req, res) {
-    terminal.stdin.write('quit\n');
+    quitPlayer();
     terminal.stdin.end();
     res.send('exit');
 });

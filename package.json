@@ -23,9 +23,10 @@
     "mediacenter"
   ],
   "author": {
-    "name":"Dávid Kasznár",
-    "email":"david@kasznar.hu"},
-  "homepage":"kasznar.hu",
+    "name": "Dávid Kasznár",
+    "email": "david@kasznar.hu"
+  },
+  "homepage": "kasznar.hu",
   "license": "beerware",
   "devDependencies": {
     "electron": "^2.0.0",
