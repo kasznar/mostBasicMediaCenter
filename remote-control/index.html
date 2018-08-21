@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="theme-color" content="#000000"/>
     <meta
             name='viewport'
             content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'
@@ -22,7 +23,7 @@
 <h1 class="text-center text-white pb-5 pt-2">Basic remote</h1>
 
 <div style="position: fixed; top: 50px; right: 10px;">
-    <button class="btn" onclick="$('.container-fluid').toggle(); $('.touch-area').toggle();">toggle</button>
+    <button class="btn d-none" onclick="$('.container-fluid').toggle(); $('.touch-area').toggle();">toggle</button>
 </div>
 
 <div class="touch-area m-4 border" id="touch-area" style="height: 70vh"></div>
@@ -64,31 +65,31 @@
     $('#up-button').click(function () {
         $.ajax({
             type: "GET",
-            url: "http://192.168.0.112:8081/list-up",
+            url: "/list-up",
         });
     });
     $('#down-button').click(function () {
         $.ajax({
             type: "GET",
-            url: "http://192.168.0.112:8081/list-down",
+            url: "/list-down",
         });
     });
     $('#enter-button').click(function () {
         $.ajax({
             type: "GET",
-            url: "http://192.168.0.112:8081/open",
+            url: "/open",
         });
     });
     $('#quit-button').click(function () {
         $.ajax({
             type: "GET",
-            url: "http://192.168.0.112:8081/exit",
+            url: "/exit",
         });
     });
     $('#pause-button').click(function () {
         $.ajax({
             type: "GET",
-            url: "http://192.168.0.112:8081/pause",
+            url: "/pause",
         });
     });
 
@@ -108,22 +109,32 @@
         if (ev.type == "swipeup") {
             $.ajax({
                 type: "GET",
-                url: "http://192.168.0.112:8081/list-up",
+                url: "/remote-up",
             });
         }
 
         if (ev.type == "swipedown") {
             $.ajax({
                 type: "GET",
-                url: "http://192.168.0.112:8081/list-down",
+                url: "/remote-down",
             });
         }
+
         if (ev.type == "tap") {
             $.ajax({
                 type: "GET",
-                url: "http://192.168.0.112:8081/open",
+                url: "/remote-enter",
             });
         }
+
+        if (ev.type == "press") {
+            $.ajax({
+                type: "GET",
+                url: "/remote-secondary",
+            });
+        }
+
+        window.navigator.vibrate(50);
 
         console.log(ev.type + " gesture detected.");
     });

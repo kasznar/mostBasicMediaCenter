@@ -1,11 +1,31 @@
-body{
+body {
     background-color: black;
     color: white;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+#wrapper {
+    height: 100%;
+    overflow: hidden;
     font-size: 4rem;
 }
-.list-group{
+
+.list-group {
     background-color: black;
 }
-.list-group-item{
+
+.list-group-item {
     background-color: black;
+}
+
+.pop-up {
+    z-index: 666;
+    width: 100%;
+    position: fixed;
+    left: 0;
+    top: 30%;
 }

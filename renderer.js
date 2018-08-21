@@ -7,6 +7,7 @@
 //HTML references
 
 var listGroup = document.getElementById('listgroup');
+var popUpContent = document.getElementById('pop-up-content');
 
 
 //Event listeners
@@ -66,9 +67,7 @@ function moveUpList() {
     checkPosition();
 }
 
-function openSelectedFile() {
-    openVideo(listOfStuff[liSelected.index()].absPath);
-}
+
 
 function openItem() {
     const fs = require('fs');
@@ -84,8 +83,9 @@ function openItem() {
         }
         checkPosition();
     } else {
-        openSelectedFile();
+        openVideo(listOfStuff[liSelected.index()].absPath);
     }
+
 }
 
 function addEventListeners() {
@@ -93,17 +93,82 @@ function addEventListeners() {
     liSelected = null;
 }
 
+
+
 $(window).keydown(function(e){
     if(e.which === 40){
-        moveDownList();
+        handleInput('down');
+        //moveDownList();
     }else if(e.which === 38){
-        moveUpList();
+        handleInput('up');
+        //moveUpList();
     }else if(e.which === 13){
-        openItem();
+        handleInput('enter')
+        //openItem();
+    }else if(e.which === 8){
+        handleInput('secondary');
     }
 
     e.preventDefault();
 });
+
+
+
+
+
+
+
+var activeState = 'start'
+
+
+function handleInput(input) {
+    switch (activeState) {
+        case 'start':
+            switch (input){
+                case 'enter':
+                    console.log('close start screen');
+                    $('#pop-up').fadeOut()
+                    activeState = 'fileList';
+                    break;
+            }
+            break;
+        case 'fileList':
+            switch (input) {
+                case 'up':
+                    moveUpList();
+                    break;
+                case 'down':
+                    moveDownList()
+                    break;
+                case 'enter':
+                    openItem();
+                    break;
+                case 'secondary':
+                    $('#pop-up').fadeIn();
+                    activeState = 'start';
+                    break;
+            }
+            break;
+        case 'player':
+            switch (input){
+                case 'enter':
+                    pauseMplayer();
+                    break;
+                case 'secondary':
+                    terminal.stdin.write('quit\n');
+                    terminal.stdin.end();
+                    break;
+            }
+            break;
+
+        default:
+            console.log('There \' no: ' + expr + ' state.');
+    }
+
+}
+
+
+
 
 
 //Global variables
@@ -173,22 +238,25 @@ function pauseMplayer() {
 function openVideo(videoPath) {
     //mplayer fullscreen arg: -fs
     if(!terminal){
-        terminal = require('child_process').spawn('mplayer',['-slave','-quiet',videoPath]);
+        terminal = require('child_process').spawn('mplayer',['-slave','-fs','-quiet',videoPath]);
     } else{
         console.log("already opened");
     }
 
     // output stream from process
-    /*
     terminal.stdout.on('data', function (data) {
         console.log('stdout: ' + data);
     });
-    */
+
 
     terminal.on('exit', function (code) {
         console.log('child process exited with code ' + code);
         terminal = null;
+        activeState = 'fileList';
     });
+
+    activeState = 'player';
+
 }
 
 
@@ -205,6 +273,10 @@ var app = express();
 app.get('/', function (req, res) {
     res.sendFile(__dirname +'/remote-control/index.html');
 });
+
+
+
+
 
 
 app.get('/list-down', function (req, res) {
@@ -233,12 +305,90 @@ app.get('/exit', function (req, res) {
     res.send('exit');
 });
 
-var server = app.listen(8081, function () {
-    var host = server.address().address
-    var port = server.address().port
 
-    console.log("Example app listening at http://%s:%s", host, port)
+
+
+app.get('/remote-up', function (req, res) {
+    handleInput('up');
+    res.send('remote up');
 });
+
+app.get('/remote-down', function (req, res) {
+    handleInput('down');
+    res.send('remote down');
+});
+
+app.get('/remote-left', function (req, res) {
+    handleInput('left');
+    res.send('remote left');
+});
+
+app.get('/remote-right', function (req, res) {
+    handleInput('right');
+    res.send('remote right');
+});
+
+app.get('/remote-enter', function (req, res) {
+    handleInput('enter');
+    res.send('remote enter');
+});
+
+app.get('/remote-secondary', function (req, res) {
+    handleInput('secondary');
+    res.send('remote secondary');
+});
+
+
+
+
+
+
+
+
+
+var server = app.listen(8081, function () {
+    var host = server.address().address;
+    var port = server.address().port;
+
+    console.log("Example app listening at http://%s:%s", host, port);
+});
+
+
+getIpAddress();
+
+
+function getIpAddress() {
+    var os = require('os');
+    var ifaces = os.networkInterfaces();
+
+    var ipAddress = "";
+
+    console.log(ifaces);
+
+    Object.keys(ifaces).forEach(function (ifname) {
+        var alias = 0;
+
+        ifaces[ifname].forEach(function (iface) {
+            if ('IPv4' !== iface.family || iface.internal !== false) {
+                // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
+                return;
+            }
+
+            if (alias >= 1) {
+                // this single interface has multiple ipv4 addresses
+                console.log(ifname + ':' + alias, iface.address);
+                ipAddress = iface.address;
+            } else {
+                // this interface has only one ipv4 adress
+                console.log(ifname, iface.address);
+                ipAddress = iface.address;
+            }
+            ++alias;
+        });
+    });
+
+    popUpContent.innerHTML = "Visit " + ipAddress + ":" + "8081" + " for remote control";
+}
 
 
 

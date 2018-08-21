@@ -7,13 +7,14 @@ let mainWindow
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 640, height: 480})
+  mainWindow = new BrowserWindow({width: 640, height: 480, minWidth:500, minHeight:200});
 
   // and load the index.html of the app.
   mainWindow.loadFile('index.html');
-   mainWindow.webContents.openDevTools();
-  mainWindow.maximize();
-  //mainWindow.setFullScreen(true);
+  mainWindow.setMenu(null);
+  //mainWindow.webContents.openDevTools();
+  // mainWindow.maximize();
+  mainWindow.setFullScreen(true);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
