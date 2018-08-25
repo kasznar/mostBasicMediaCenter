@@ -6,16 +6,21 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "build"
+    "dist": "build",
+    "package-win": "electron-packager . mostBasicMediaCenter --overwrite  --platform=win32 --arch=ia32  --prune=true --out=dist/electron-packager/win32 --version-string.CompanyName=kasznar --version-string.FileDescription=kasznar --version-string.ProductName=\"mostBasicMediaCenter\"",
+    "package-linux": "electron-packager . mostBasicMediaCenter --overwrite  --platform=linux --arch=x64  --prune=true --out=dist/electron-packager/linux64"
   },
   "build": {
-    "appId": "yes",
+    "appId": "mostBasicMediaCenter",
     "linux": {
       "category": "Media",
       "target": [
         "AppImage",
         "deb"
       ]
+    },
+    "win": {
+      "target": "NSIS"
     }
   },
   "repository": "https://github.com/kasznar",
@@ -31,8 +36,9 @@
   "license": "beerware",
   "devDependencies": {
     "electron": "^2.0.0",
-    "electron-builder": "^20.28.1",
-    "electron-packager": "^12.1.1"
+    "electron-builder": "^20.28.2",
+    "electron-packager": "^12.1.1",
+    "electron-winstaller": "^2.6.4"
   },
   "dependencies": {
     "express": "^4.16.3"

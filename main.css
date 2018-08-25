@@ -20,6 +20,7 @@ html, body {
 
 .list-group-item {
     background-color: black;
+    word-break: break-all;
 }
 
 .pop-up {

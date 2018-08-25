@@ -7,9 +7,9 @@ function createWindow () {
 
   mainWindow.loadFile('index.html');
   mainWindow.setMenu(null);
-  mainWindow.webContents.openDevTools();
-  mainWindow.maximize();
-  // mainWindow.setFullScreen(true);
+  //mainWindow.webContents.openDevTools();
+  //mainWindow.maximize();
+  mainWindow.setFullScreen(true);
 
   mainWindow.on('closed', function () {
     mainWindow = null

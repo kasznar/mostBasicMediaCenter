@@ -136,14 +136,16 @@ function listDirectory(directoryPath){
 
     fs.readdirSync(directoryPath).forEach(file => {
         var itemType = 'file';
+        var itemPath = path.resolve(directoryPath + '/' + file);
         //skip hidden files
         if(file.charAt(0) != "."){
             //check if directory
-            if(fs.lstatSync(directoryPath + '/' + file).isDirectory()){
+            if(fs.lstatSync(itemPath).isDirectory()){
                 itemType = 'folder';
             }
-            listOfStuff.push(new ListItem(file, directoryPath + '/' + file, itemType));
+            listOfStuff.push(new ListItem(file, itemPath, itemType));
         }
+        console.log(path.resolve(itemPath));
     });
 
     updateListView();
@@ -331,12 +333,17 @@ function pausePlayer() {
 }
 
 function openVideo(videoPath) {
+    console.log('openVideo fired');
     //mplayer fullscreen arg: -fs
     if(!terminal){
         if(videoPlayer == "omxpayer"){
             terminal = require('child_process').spawn('omxplayer',[videoPath]);
         }else  if(videoPlayer == "mplayer"){
-            terminal = require('child_process').spawn('mplayer',['-slave','-quiet',videoPath]);
+            console.log('*********');
+            
+            var path = require('path');
+            console.log(path.resolve(videoPath));
+            terminal = require('child_process').spawn('mplayer',['-slave','-quiet',path.resolve(videoPath)]);
         }
     } else{
         console.log("already opened");
@@ -442,6 +449,7 @@ if (fs.existsSync(confFilePath)) {
 } else {
     fs.writeFile(confFilePath, defaultConfigFileTxt, function(err) {
         if(err) {
+            console.log("it's an error");
             return console.log(err);
         }
 
@@ -452,3 +460,5 @@ if (fs.existsSync(confFilePath)) {
 
 listDirectory(homedir);
 getIpAddress();
+
+console.log(__dirname);
