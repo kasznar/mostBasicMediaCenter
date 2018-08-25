@@ -12,7 +12,7 @@ var popUpContent = document.getElementById('pop-up-content');
 
 //Global variables
 
-var isItRaspberry = false;
+var videoPlayer = "mplayer";
 
 var liSelected;
 var li;
@@ -155,7 +155,7 @@ function getIpAddress() {
 
     var ipAddress = "";
 
-    console.log(ifaces);
+    // console.log(ifaces);
 
     Object.keys(ifaces).forEach(function (ifname) {
         var alias = 0;
@@ -168,11 +168,11 @@ function getIpAddress() {
 
             if (alias >= 1) {
                 // this single interface has multiple ipv4 addresses
-                console.log(ifname + ':' + alias, iface.address);
+                // console.log(ifname + ':' + alias, iface.address);
                 ipAddress = iface.address;
             } else {
                 // this interface has only one ipv4 adress
-                console.log(ifname, iface.address);
+                // console.log(ifname, iface.address);
                 ipAddress = iface.address;
             }
             ++alias;
@@ -214,7 +214,6 @@ function handleInput(input) {
         case 'start':
             switch (input){
                 case 'enter':
-                    console.log('close start screen');
                     $('#pop-up').fadeOut()
                     activeState = 'fileList';
                     break;
@@ -271,17 +270,17 @@ function handleInput(input) {
 
 
 function seekForward() {
-    if (isItRaspberry){
+    if (videoPlayer == "omxpayer"){
         // lol omxplayer
-    } else{
+    } else if(videoPlayer == "mplayer"){
         terminal.stdin.write('seek 60 0\n');
     }
 }
 
 function seekBackwards() {
-    if (isItRaspberry){
+    if (videoPlayer == "omxpayer"){
         // lol omxplayer
-    } else{
+    } else if(videoPlayer == "mplayer"){
         terminal.stdin.write('seek -60 0\n');
     }
 }
@@ -293,9 +292,9 @@ function volumeUp() {
         mPlayerVolume = 100;
     }
 
-    if (isItRaspberry){
+    if (videoPlayer == "omxpayer"){
         // terminal.stdin.write('volume '+ mPlayerVolume +'\n');
-    }else{
+    }else if(videoPlayer == "mplayer"){
         terminal.stdin.write('volume '+ mPlayerVolume +'\n');
     }
 }
@@ -307,26 +306,26 @@ function volumeDown() {
         mPlayerVolume = 0;
     }
 
-    if (isItRaspberry){
+    if (videoPlayer == "omxpayer"){
         // terminal.stdin.write('volume '+ mPlayerVolume +'\n');
-    }else{
+    }else if(videoPlayer == "mplayer"){
         terminal.stdin.write('volume '+ mPlayerVolume +'\n');
     }
 }
 
 function quitPlayer() {
-    if(isItRaspberry){
+    if(videoPlayer == "omxpayer"){
         terminal.stdin.write('q');
-    }else{
+    }else if(videoPlayer == "mplayer"){
         terminal.stdin.write('quit\n');
     }
     terminal.stdin.end();
 }
 
 function pausePlayer() {
-    if(isItRaspberry){
+    if(videoPlayer == "omxpayer"){
         terminal.stdin.write('p');
-    }else{
+    }else if(videoPlayer == "mplayer"){
         terminal.stdin.write('pause\n');
     }
 }
@@ -334,9 +333,9 @@ function pausePlayer() {
 function openVideo(videoPath) {
     //mplayer fullscreen arg: -fs
     if(!terminal){
-        if(isItRaspberry){
+        if(videoPlayer == "omxpayer"){
             terminal = require('child_process').spawn('omxplayer',[videoPath]);
-        }else{
+        }else  if(videoPlayer == "mplayer"){
             terminal = require('child_process').spawn('mplayer',['-slave','-quiet',videoPath]);
         }
     } else{
@@ -405,11 +404,51 @@ var server = app.listen(8081, function () {
     var host = server.address().address;
     var port = server.address().port;
 
-    console.log("Example app listening at http://%s:%s", host, port);
+    // console.log("Example app listening at http://%s:%s", host, port);
 });
 
 
 //Execute
 
-listDirectory('/home/kasznar/Videos/youtube');
+var homedir = require('os').homedir();
+
+
+var confFilePath = homedir + "/.mostBasicMediaCenter/mostBasicConfig.js";
+
+var fs = require('fs');
+
+
+var defaultConfigFileTxt = `
+module.exports = {
+  config: {
+    //default directory relative to root
+    //defaultDirectory: '',
+
+    //default video player
+    //'omxplayer' and 'mplayer' supported
+    defaultVideoPlayer: 'mplayer',
+  }
+};
+`;
+
+if (fs.existsSync(confFilePath)) {
+    var config = require(confFilePath);
+
+    if(config.config.defaultDirectory){
+        homedir = config.config.defaultDirectory;
+    }
+    videoPlayer = config.config.defaultVideoPlayer;
+
+} else {
+    fs.writeFile(confFilePath, defaultConfigFileTxt, function(err) {
+        if(err) {
+            return console.log(err);
+        }
+
+        console.log("The file was saved!");
+    });
+}
+
+
+listDirectory(homedir);
 getIpAddress();
