@@ -10,16 +10,36 @@ var listGroup = document.getElementById('listgroup');
 var popUpContent = document.getElementById('pop-up-content');
 
 
-//Event listeners
+//Global variables
 
-var isItRaspberry = "true";
+var isItRaspberry = false;
 
 var liSelected;
 var li;
 var listGroupTop = 0;
 
-function checkPosition() {
+var mPlayerVolume = 69;
 
+var listOfStuff = [];
+var terminal;
+
+var activeState = 'start';
+
+
+//GUI
+
+function addEventListeners() {
+    li = $('li');
+    liSelected = null;
+}
+
+function ListItem(title, absPath, itemType){
+    this.title = title;
+    this.absPath = absPath;
+    this.itemType = itemType;
+}
+
+function checkPosition() {
     var itemTop = liSelected.offset().top;
     var itemHeight = liSelected.outerHeight();
     var winH = window.innerHeight;
@@ -32,7 +52,6 @@ function checkPosition() {
     if (0 > liSelected.offset().top) {
         listGroupTop += -itemTop;
         $( ".list-group" ).offset({ top: listGroupTop, left: 0 });
-
     }
 
 }
@@ -67,8 +86,6 @@ function moveUpList() {
     checkPosition();
 }
 
-
-
 function openItem() {
     const fs = require('fs');
     var selectedPath = listOfStuff[liSelected.index()].absPath;
@@ -85,15 +102,88 @@ function openItem() {
     } else {
         openVideo(listOfStuff[liSelected.index()].absPath);
     }
-
 }
 
-function addEventListeners() {
-    li = $('li');
-    liSelected = null;
+function updateListView() {
+    listGroup.innerHTML = '';
+
+    listOfStuff.forEach((e)=>{
+        var iconHTML = '';
+
+        if(e.itemType == 'folder'){
+            iconHTML = '<img src="assets/icons/baseline_folder_white_48dp.png">';
+        }
+
+        if(e.itemType == 'back'){
+            iconHTML = '<img src="assets/icons/baseline_arrow_back_white_48dp.png">';
+        }
+        listGroup.innerHTML += '<li class="list-group-item">' + iconHTML + e.title + '</li>';
+    })
+
+    addEventListeners();
+}
+
+function listDirectory(directoryPath){
+    const fs = require('fs');
+
+    listOfStuff = [];
+
+    var path = require('path');
+    //Return the directories:
+    var parentPath = path.dirname(directoryPath);
+
+    listOfStuff.push(new ListItem('BACK', parentPath, 'back'));
+
+    fs.readdirSync(directoryPath).forEach(file => {
+        var itemType = 'file';
+        //skip hidden files
+        if(file.charAt(0) != "."){
+            //check if directory
+            if(fs.lstatSync(directoryPath + '/' + file).isDirectory()){
+                itemType = 'folder';
+            }
+            listOfStuff.push(new ListItem(file, directoryPath + '/' + file, itemType));
+        }
+    });
+
+    updateListView();
+}
+
+function getIpAddress() {
+    var os = require('os');
+    var ifaces = os.networkInterfaces();
+
+    var ipAddress = "";
+
+    console.log(ifaces);
+
+    Object.keys(ifaces).forEach(function (ifname) {
+        var alias = 0;
+
+        ifaces[ifname].forEach(function (iface) {
+            if ('IPv4' !== iface.family || iface.internal !== false) {
+                // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
+                return;
+            }
+
+            if (alias >= 1) {
+                // this single interface has multiple ipv4 addresses
+                console.log(ifname + ':' + alias, iface.address);
+                ipAddress = iface.address;
+            } else {
+                // this interface has only one ipv4 adress
+                console.log(ifname, iface.address);
+                ipAddress = iface.address;
+            }
+            ++alias;
+        });
+    });
+
+    popUpContent.innerHTML = "Visit " + ipAddress + ":" + "8081" + " for remote control";
 }
 
 
+//keyboard input
 
 $(window).keydown(function(e){
     if(e.which === 40){
@@ -107,19 +197,17 @@ $(window).keydown(function(e){
         //openItem();
     }else if(e.which === 8){
         handleInput('secondary');
+    }else if(e.which === 39){
+        handleInput('right');
+    }else if(e.which === 37){
+        handleInput('left');
     }
 
     e.preventDefault();
 });
 
 
-
-
-
-
-
-var activeState = 'start'
-
+//App state management
 
 function handleInput(input) {
     switch (activeState) {
@@ -157,6 +245,18 @@ function handleInput(input) {
                 case 'secondary':
                     quitPlayer();
                     break;
+                case 'up':
+                    volumeUp();
+                    break;
+                case 'down':
+                    volumeDown();
+                    break;
+                case 'right':
+                    seekForward();
+                    break;
+                case 'left':
+                    seekBackwards();
+                    break;
             }
             break;
 
@@ -167,66 +267,51 @@ function handleInput(input) {
 }
 
 
+//PLAYER CONTROLS
 
 
-
-//Global variables
-
-var listOfStuff = [];
-var terminal;
-
-
-
-function ListItem(title, absPath, itemType){
-    this.title = title;
-    this.absPath = absPath;
-    this.itemType = itemType;
+function seekForward() {
+    if (isItRaspberry){
+        // lol omxplayer
+    } else{
+        terminal.stdin.write('seek 60 0\n');
+    }
 }
 
-function updateListView() {
-    listGroup.innerHTML = '';
-
-    listOfStuff.forEach((e)=>{
-        var iconHTML = '';
-
-        if(e.itemType == 'folder'){
-            iconHTML = '<img src="assets/icons/baseline_folder_white_48dp.png">';
-        }
-
-        if(e.itemType == 'back'){
-            iconHTML = '<img src="assets/icons/baseline_arrow_back_white_48dp.png">';
-        }
-        listGroup.innerHTML += '<li class="list-group-item">' + iconHTML + e.title + '</li>';
-    })
-
-    addEventListeners();
+function seekBackwards() {
+    if (isItRaspberry){
+        // lol omxplayer
+    } else{
+        terminal.stdin.write('seek -60 0\n');
+    }
 }
 
-function listDirectory(directoryPath){
-    const fs = require('fs');
+function volumeUp() {
+    if(mPlayerVolume < 95){
+        mPlayerVolume += 5;
+    }else {
+        mPlayerVolume = 100;
+    }
 
-    listOfStuff = [];
+    if (isItRaspberry){
+        // terminal.stdin.write('volume '+ mPlayerVolume +'\n');
+    }else{
+        terminal.stdin.write('volume '+ mPlayerVolume +'\n');
+    }
+}
 
-    var path = require('path');
-    //Return the directries:
-    var parentPath = path.dirname(directoryPath);
+function volumeDown() {
+    if(mPlayerVolume > 5){
+        mPlayerVolume -= 5;
+    }else {
+        mPlayerVolume = 0;
+    }
 
-    listOfStuff.push(new ListItem('BACK', parentPath, 'back'));
-
-    fs.readdirSync(directoryPath).forEach(file => {
-        var itemType = 'file';
-        //skip hidden files
-        if(file.charAt(0) != "."){
-            //check if directory
-            if(fs.lstatSync(directoryPath + '/' + file).isDirectory()){
-                itemType = 'folder';
-            }
-            listOfStuff.push(new ListItem(file, directoryPath + '/' + file, itemType));
-
-        }
-    });
-
-    updateListView();
+    if (isItRaspberry){
+        // terminal.stdin.write('volume '+ mPlayerVolume +'\n');
+    }else{
+        terminal.stdin.write('volume '+ mPlayerVolume +'\n');
+    }
 }
 
 function quitPlayer() {
@@ -246,25 +331,24 @@ function pausePlayer() {
     }
 }
 
-
 function openVideo(videoPath) {
     //mplayer fullscreen arg: -fs
     if(!terminal){
         if(isItRaspberry){
             terminal = require('child_process').spawn('omxplayer',[videoPath]);
         }else{
-            terminal = require('child_process').spawn('mplayer',['-slave','-fs','-quiet',videoPath]);
+            terminal = require('child_process').spawn('mplayer',['-slave','-quiet',videoPath]);
         }
     } else{
         console.log("already opened");
     }
 
     // output stream from process
+    /*
     terminal.stdout.on('data', function (data) {
         console.log('stdout: ' + data);
     });
-
-
+    */
     terminal.on('exit', function (code) {
         console.log('child process exited with code ' + code);
         terminal = null;
@@ -274,14 +358,7 @@ function openVideo(videoPath) {
 
     activeState = 'player';
     $('#overlay').show();
-
 }
-
-
-//Execute
-
-listDirectory('/home/');
-
 
 //Express Server
 
@@ -291,39 +368,6 @@ var app = express();
 app.get('/', function (req, res) {
     res.sendFile(__dirname +'/remote-control/index.html');
 });
-
-
-
-
-
-
-app.get('/list-down', function (req, res) {
-    moveDownList();
-    res.send('list-down');
-});
-
-app.get('/list-up', function (req, res) {
-    moveUpList();
-    res.send('list-up');
-});
-
-app.get('/pause', function (req, res) {
-    pausePlayer();
-    res.send('pause');
-});
-
-app.get('/open', function (req, res) {
-    openItem();
-    res.send('open');
-});
-
-app.get('/exit', function (req, res) {
-    quitPlayer();
-    terminal.stdin.end();
-    res.send('exit');
-});
-
-
 
 
 app.get('/remote-up', function (req, res) {
@@ -357,13 +401,6 @@ app.get('/remote-secondary', function (req, res) {
 });
 
 
-
-
-
-
-
-
-
 var server = app.listen(8081, function () {
     var host = server.address().address;
     var port = server.address().port;
@@ -372,41 +409,7 @@ var server = app.listen(8081, function () {
 });
 
 
+//Execute
+
+listDirectory('/home/kasznar/Videos/youtube');
 getIpAddress();
-
-
-function getIpAddress() {
-    var os = require('os');
-    var ifaces = os.networkInterfaces();
-
-    var ipAddress = "";
-
-    console.log(ifaces);
-
-    Object.keys(ifaces).forEach(function (ifname) {
-        var alias = 0;
-
-        ifaces[ifname].forEach(function (iface) {
-            if ('IPv4' !== iface.family || iface.internal !== false) {
-                // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
-                return;
-            }
-
-            if (alias >= 1) {
-                // this single interface has multiple ipv4 addresses
-                console.log(ifname + ':' + alias, iface.address);
-                ipAddress = iface.address;
-            } else {
-                // this interface has only one ipv4 adress
-                console.log(ifname, iface.address);
-                ipAddress = iface.address;
-            }
-            ++alias;
-        });
-    });
-
-    popUpContent.innerHTML = "Visit " + ipAddress + ":" + "8081" + " for remote control";
-}
-
-
-

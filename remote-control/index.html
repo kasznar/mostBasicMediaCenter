@@ -7,7 +7,7 @@
             name='viewport'
             content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'
     />
-    <title>Távirányító</title>
+    <title>remote control</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
           integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
@@ -22,121 +22,41 @@
 <body style="background-color: black" id="that-body">
 <h1 class="text-center text-white pb-5 pt-2">Basic remote</h1>
 
-<div style="position: fixed; top: 50px; right: 10px;">
-    <button class="btn d-none" onclick="$('.container-fluid').toggle(); $('.touch-area').toggle();">toggle</button>
-</div>
-
 <div class="touch-area m-4 border" id="touch-area" style="height: 70vh"></div>
-
-<div class="container-fluid" style="display: none;">
-    <div class="row text-center pb-3">
-        <div class="col">
-            <button class="btn btn-lg" id="up-button">UP</button>
-        </div>
-    </div>
-    <div class="row text-center pb-3">
-        <div class="col">
-            <button class="btn btn-lg btn-primary" id="enter-button">ENTER</button>
-        </div>
-    </div>
-    <div class="row text-center pb-3">
-        <div class="col">
-            <button class="btn btn-lg" id="down-button">DOWN</button>
-        </div>
-    </div>
-
-    <div class="row text-center pb-3 pt-5">
-        <div class="col">
-            <button class="btn btn-lg" id="quit-button">QUIT PLAYER</button>
-        </div>
-    </div>
-    <div class="row text-center pb-3">
-        <div class="col">
-            <button class="btn btn-lg" id="pause-button">PAUSE</button>
-        </div>
-    </div>
-</div>
-
 
 </body>
 
 
 <script>
-    $('#up-button').click(function () {
-        $.ajax({
-            type: "GET",
-            url: "/list-up",
-        });
-    });
-    $('#down-button').click(function () {
-        $.ajax({
-            type: "GET",
-            url: "/list-down",
-        });
-    });
-    $('#enter-button').click(function () {
-        $.ajax({
-            type: "GET",
-            url: "/open",
-        });
-    });
-    $('#quit-button').click(function () {
-        $.ajax({
-            type: "GET",
-            url: "/exit",
-        });
-    });
-    $('#pause-button').click(function () {
-        $.ajax({
-            type: "GET",
-            url: "/pause",
-        });
-    });
-
-
     var myElement = document.getElementById('touch-area');
 
-    // create a simple instance
-    // by default, it only adds horizontal recognizers
     var mc = new Hammer(myElement);
-
-    // let the pan gesture support all directions.
-    // this will block the vertical scrolling on a touch-device while on the element
     mc.get('swipe').set({direction: Hammer.DIRECTION_ALL});
 
-    // listen to events...
     mc.on("swipeleft swiperight swipeup swipedown tap press", function (ev) {
-        if (ev.type == "swipeup") {
-            $.ajax({
-                type: "GET",
-                url: "/remote-up",
-            });
-        }
 
-        if (ev.type == "swipedown") {
-            $.ajax({
-                type: "GET",
-                url: "/remote-down",
-            });
-        }
-
-        if (ev.type == "tap") {
-            $.ajax({
-                type: "GET",
-                url: "/remote-enter",
-            });
-        }
-
-        if (ev.type == "press") {
-            $.ajax({
-                type: "GET",
-                url: "/remote-secondary",
-            });
+        switch (ev.type) {
+            case "swipeup":
+                $.ajax({type: "GET",url: "/remote-up",});
+                break;
+            case "swipedown":
+                $.ajax({type: "GET",url: "/remote-down",});
+                break;
+            case "tap":
+                $.ajax({type: "GET",url: "/remote-enter",});
+                break;
+            case "press":
+                $.ajax({type: "GET",url: "/remote-secondary",});
+                break;
+            case "swipeleft":
+                $.ajax({type: "GET",url: "/remote-left",});
+                break;
+            case "swiperight":
+                $.ajax({type: "GET",url: "/remote-right",});
+                break;
         }
 
         window.navigator.vibrate(50);
-
-        console.log(ev.type + " gesture detected.");
     });
 </script>
 </html>
