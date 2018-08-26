@@ -1,5 +1,7 @@
 const {app, BrowserWindow} = require('electron');
 
+var devMode = false;
+
 let mainWindow;
 
 function createWindow () {
@@ -7,10 +9,14 @@ function createWindow () {
 
   mainWindow.loadFile('index.html');
   mainWindow.setMenu(null);
-  //mainWindow.webContents.openDevTools();
-  //mainWindow.maximize();
-  mainWindow.setFullScreen(true);
 
+  if(devMode){
+    mainWindow.webContents.openDevTools();
+    mainWindow.maximize();
+  }else{
+    mainWindow.setFullScreen(true);
+  }
+  
   mainWindow.on('closed', function () {
     mainWindow = null
   })

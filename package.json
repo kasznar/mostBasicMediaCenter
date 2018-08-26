@@ -35,7 +35,7 @@
   "homepage": "kasznar.hu",
   "license": "beerware",
   "devDependencies": {
-    "electron": "^2.0.0",
+    "electron": "^2.0.8",
     "electron-builder": "^20.28.2",
     "electron-packager": "^12.1.1",
     "electron-winstaller": "^2.6.4"

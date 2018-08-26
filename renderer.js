@@ -33,7 +33,7 @@ function addEventListeners() {
     liSelected = null;
 }
 
-function ListItem(title, absPath, itemType){
+function ListItem(title, absPath, itemType) {
     this.title = title;
     this.absPath = absPath;
     this.itemType = itemType;
@@ -44,43 +44,43 @@ function checkPosition() {
     var itemHeight = liSelected.outerHeight();
     var winH = window.innerHeight;
 
-    if(winH < itemTop + itemHeight) {
+    if (winH < itemTop + itemHeight) {
         listGroupTop -= itemTop + itemHeight - winH;
-        $( ".list-group" ).offset({ top: listGroupTop, left: 0 });
+        $(".list-group").offset({ top: listGroupTop, left: 0 });
     }
 
     if (0 > liSelected.offset().top) {
         listGroupTop += -itemTop;
-        $( ".list-group" ).offset({ top: listGroupTop, left: 0 });
+        $(".list-group").offset({ top: listGroupTop, left: 0 });
     }
 
 }
 
 function moveDownList() {
-    if(liSelected){
+    if (liSelected) {
         liSelected.removeClass('active');
         next = liSelected.next();
-        if(next.length > 0){
+        if (next.length > 0) {
             liSelected = next.addClass('active');
-        }else{
+        } else {
             liSelected = li.eq(0).addClass('active');
         }
-    }else{
+    } else {
         liSelected = li.eq(0).addClass('active');
     }
     checkPosition();
 }
 
 function moveUpList() {
-    if(liSelected){
+    if (liSelected) {
         liSelected.removeClass('active');
         next = liSelected.prev();
-        if(next.length > 0){
+        if (next.length > 0) {
             liSelected = next.addClass('active');
-        }else{
+        } else {
             liSelected = li.last().addClass('active');
         }
-    }else{
+    } else {
         liSelected = li.last().addClass('active');
     }
     checkPosition();
@@ -89,10 +89,10 @@ function moveUpList() {
 function openItem() {
     const fs = require('fs');
     var selectedPath = listOfStuff[liSelected.index()].absPath;
-    if(fs.lstatSync(selectedPath).isDirectory()){
+    if (fs.lstatSync(selectedPath).isDirectory()) {
         listDirectory(selectedPath);
 
-        if (liSelected){
+        if (liSelected) {
             liSelected.removeClass('active');
             liSelected = li.eq(0).addClass('active');
         } else {
@@ -107,14 +107,14 @@ function openItem() {
 function updateListView() {
     listGroup.innerHTML = '';
 
-    listOfStuff.forEach((e)=>{
+    listOfStuff.forEach((e) => {
         var iconHTML = '';
 
-        if(e.itemType == 'folder'){
+        if (e.itemType == 'folder') {
             iconHTML = '<img src="assets/icons/baseline_folder_white_48dp.png">';
         }
 
-        if(e.itemType == 'back'){
+        if (e.itemType == 'back') {
             iconHTML = '<img src="assets/icons/baseline_arrow_back_white_48dp.png">';
         }
         listGroup.innerHTML += '<li class="list-group-item">' + iconHTML + e.title + '</li>';
@@ -123,7 +123,7 @@ function updateListView() {
     addEventListeners();
 }
 
-function listDirectory(directoryPath){
+function listDirectory(directoryPath) {
     const fs = require('fs');
 
     listOfStuff = [];
@@ -138,14 +138,13 @@ function listDirectory(directoryPath){
         var itemType = 'file';
         var itemPath = path.resolve(directoryPath + '/' + file);
         //skip hidden files
-        if(file.charAt(0) != "."){
+        if (file.charAt(0) != ".") {
             //check if directory
-            if(fs.lstatSync(itemPath).isDirectory()){
+            if (fs.lstatSync(itemPath).isDirectory()) {
                 itemType = 'folder';
             }
             listOfStuff.push(new ListItem(file, itemPath, itemType));
         }
-        console.log(path.resolve(itemPath));
     });
 
     updateListView();
@@ -187,21 +186,21 @@ function getIpAddress() {
 
 //keyboard input
 
-$(window).keydown(function(e){
-    if(e.which === 40){
+$(window).keydown(function (e) {
+    if (e.which === 40) {
         handleInput('down');
         //moveDownList();
-    }else if(e.which === 38){
+    } else if (e.which === 38) {
         handleInput('up');
         //moveUpList();
-    }else if(e.which === 13){
+    } else if (e.which === 13) {
         handleInput('enter')
         //openItem();
-    }else if(e.which === 8){
+    } else if (e.which === 8) {
         handleInput('secondary');
-    }else if(e.which === 39){
+    } else if (e.which === 39) {
         handleInput('right');
-    }else if(e.which === 37){
+    } else if (e.which === 37) {
         handleInput('left');
     }
 
@@ -214,7 +213,7 @@ $(window).keydown(function(e){
 function handleInput(input) {
     switch (activeState) {
         case 'start':
-            switch (input){
+            switch (input) {
                 case 'enter':
                     $('#pop-up').fadeOut()
                     activeState = 'fileList';
@@ -239,7 +238,7 @@ function handleInput(input) {
             }
             break;
         case 'player':
-            switch (input){
+            switch (input) {
                 case 'enter':
                     pausePlayer();
                     break;
@@ -272,62 +271,62 @@ function handleInput(input) {
 
 
 function seekForward() {
-    if (videoPlayer == "omxpayer"){
+    if (videoPlayer == "omxpayer") {
         // lol omxplayer
-    } else if(videoPlayer == "mplayer"){
+    } else if (videoPlayer == "mplayer") {
         terminal.stdin.write('seek 60 0\n');
     }
 }
 
 function seekBackwards() {
-    if (videoPlayer == "omxpayer"){
+    if (videoPlayer == "omxpayer") {
         // lol omxplayer
-    } else if(videoPlayer == "mplayer"){
+    } else if (videoPlayer == "mplayer") {
         terminal.stdin.write('seek -60 0\n');
     }
 }
 
 function volumeUp() {
-    if(mPlayerVolume < 95){
+    if (mPlayerVolume < 95) {
         mPlayerVolume += 5;
-    }else {
+    } else {
         mPlayerVolume = 100;
     }
 
-    if (videoPlayer == "omxpayer"){
+    if (videoPlayer == "omxpayer") {
         // terminal.stdin.write('volume '+ mPlayerVolume +'\n');
-    }else if(videoPlayer == "mplayer"){
-        terminal.stdin.write('volume '+ mPlayerVolume +'\n');
+    } else if (videoPlayer == "mplayer") {
+        terminal.stdin.write('volume ' + mPlayerVolume + '\n');
     }
 }
 
 function volumeDown() {
-    if(mPlayerVolume > 5){
+    if (mPlayerVolume > 5) {
         mPlayerVolume -= 5;
-    }else {
+    } else {
         mPlayerVolume = 0;
     }
 
-    if (videoPlayer == "omxpayer"){
+    if (videoPlayer == "omxpayer") {
         // terminal.stdin.write('volume '+ mPlayerVolume +'\n');
-    }else if(videoPlayer == "mplayer"){
-        terminal.stdin.write('volume '+ mPlayerVolume +'\n');
+    } else if (videoPlayer == "mplayer") {
+        terminal.stdin.write('volume ' + mPlayerVolume + '\n');
     }
 }
 
 function quitPlayer() {
-    if(videoPlayer == "omxpayer"){
+    if (videoPlayer == "omxpayer") {
         terminal.stdin.write('q');
-    }else if(videoPlayer == "mplayer"){
+    } else if (videoPlayer == "mplayer") {
         terminal.stdin.write('quit\n');
     }
     terminal.stdin.end();
 }
 
 function pausePlayer() {
-    if(videoPlayer == "omxpayer"){
+    if (videoPlayer == "omxpayer") {
         terminal.stdin.write('p');
-    }else if(videoPlayer == "mplayer"){
+    } else if (videoPlayer == "mplayer") {
         terminal.stdin.write('pause\n');
     }
 }
@@ -335,17 +334,17 @@ function pausePlayer() {
 function openVideo(videoPath) {
     console.log('openVideo fired');
     //mplayer fullscreen arg: -fs
-    if(!terminal){
-        if(videoPlayer == "omxpayer"){
-            terminal = require('child_process').spawn('omxplayer',[videoPath]);
-        }else  if(videoPlayer == "mplayer"){
+    if (!terminal) {
+        if (videoPlayer == "omxpayer") {
+            terminal = require('child_process').spawn('omxplayer', [videoPath]);
+        } else if (videoPlayer == "mplayer") {
             console.log('*********');
-            
+
             var path = require('path');
             console.log(path.resolve(videoPath));
-            terminal = require('child_process').spawn('mplayer',['-slave','-quiet',path.resolve(videoPath)]);
+            terminal = require('child_process').spawn('mplayer', ['-slave', '-quiet', '-fs', path.resolve(videoPath)]);
         }
-    } else{
+    } else {
         console.log("already opened");
     }
 
@@ -372,7 +371,7 @@ var express = require('express');
 var app = express();
 
 app.get('/', function (req, res) {
-    res.sendFile(__dirname +'/remote-control/index.html');
+    res.sendFile(__dirname + '/remote-control/index.html');
 });
 
 
@@ -417,19 +416,11 @@ var server = app.listen(8081, function () {
 
 //Execute
 
-var homedir = require('os').homedir();
-
-
-var confFilePath = homedir + "/.mostBasicMediaCenter/mostBasicConfig.js";
-
-var fs = require('fs');
-
-
 var defaultConfigFileTxt = `
 module.exports = {
   config: {
     //default directory relative to root
-    //defaultDirectory: '',
+    defaultDirectory: '',
 
     //default video player
     //'omxplayer' and 'mplayer' supported
@@ -438,17 +429,29 @@ module.exports = {
 };
 `;
 
+var homedir = require('os').homedir();
+var path = require('path');
+var fs = require('fs');
+
+//windows pls
+var confFilePath = path.resolve(homedir + "/.mostBasicMediaCenter/mostBasicConfig.js");
+
 if (fs.existsSync(confFilePath)) {
     var config = require(confFilePath);
 
-    if(config.config.defaultDirectory){
+    if (config.config.defaultDirectory && config.config.defaultDirectory !== '') {
         homedir = config.config.defaultDirectory;
     }
     videoPlayer = config.config.defaultVideoPlayer;
 
 } else {
-    fs.writeFile(confFilePath, defaultConfigFileTxt, function(err) {
-        if(err) {
+    // TODO: create folder if there is none
+    //       windows .hidden folder creation 
+    
+    fs.mkdirSync(path.resolve(homedir + "/.mostBasicMediaCenter"));
+
+    fs.writeFile(confFilePath, defaultConfigFileTxt, function (err) {
+        if (err) {
             console.log("it's an error");
             return console.log(err);
         }
@@ -457,8 +460,5 @@ if (fs.existsSync(confFilePath)) {
     });
 }
 
-
 listDirectory(homedir);
 getIpAddress();
-
-console.log(__dirname);
