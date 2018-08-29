@@ -12,6 +12,7 @@ var popUpContent = document.getElementById('pop-up-content');
 
 //Global variables
 
+// default player
 var videoPlayer = "mplayer";
 
 var liSelected;
@@ -25,6 +26,8 @@ var terminal;
 
 var activeState = 'start';
 
+const OMXPLAYER = 'omxplayer';
+const MPLAYER = 'mplayer';
 
 //GUI
 
@@ -271,17 +274,17 @@ function handleInput(input) {
 
 
 function seekForward() {
-    if (videoPlayer == "omxpayer") {
-        // lol omxplayer
-    } else if (videoPlayer == "mplayer") {
+    if (videoPlayer == OMXPLAYER) {
+        terminal.stdin.write("\027[A");
+    } else if (videoPlayer == MPLAYER) {
         terminal.stdin.write('seek 60 0\n');
     }
 }
 
 function seekBackwards() {
-    if (videoPlayer == "omxpayer") {
-        // lol omxplayer
-    } else if (videoPlayer == "mplayer") {
+    if (videoPlayer == OMXPLAYER) {
+        terminal.stdin.write("\027[B");
+    } else if (videoPlayer == MPLAYER) {
         terminal.stdin.write('seek -60 0\n');
     }
 }
@@ -293,9 +296,9 @@ function volumeUp() {
         mPlayerVolume = 100;
     }
 
-    if (videoPlayer == "omxpayer") {
-        // terminal.stdin.write('volume '+ mPlayerVolume +'\n');
-    } else if (videoPlayer == "mplayer") {
+    if (videoPlayer == OMXPLAYER) {
+        terminal.stdin.write('+');
+    } else if (videoPlayer == MPLAYER) {
         terminal.stdin.write('volume ' + mPlayerVolume + '\n');
     }
 }
@@ -307,26 +310,26 @@ function volumeDown() {
         mPlayerVolume = 0;
     }
 
-    if (videoPlayer == "omxpayer") {
-        // terminal.stdin.write('volume '+ mPlayerVolume +'\n');
-    } else if (videoPlayer == "mplayer") {
+    if (videoPlayer == OMXPLAYER) {
+        terminal.stdin.write('-');
+    } else if (videoPlayer == MPLAYER) {
         terminal.stdin.write('volume ' + mPlayerVolume + '\n');
     }
 }
 
 function quitPlayer() {
-    if (videoPlayer == "omxpayer") {
+    if (videoPlayer == OMXPLAYER) {
         terminal.stdin.write('q');
-    } else if (videoPlayer == "mplayer") {
+    } else if (videoPlayer == MPLAYER) {
         terminal.stdin.write('quit\n');
     }
     terminal.stdin.end();
 }
 
 function pausePlayer() {
-    if (videoPlayer == "omxpayer") {
+    if (videoPlayer == OMXPLAYER) {
         terminal.stdin.write('p');
-    } else if (videoPlayer == "mplayer") {
+    } else if (videoPlayer == MPLAYER) {
         terminal.stdin.write('pause\n');
     }
 }
@@ -335,9 +338,9 @@ function openVideo(videoPath) {
     console.log('openVideo fired');
     //mplayer fullscreen arg: -fs
     if (!terminal) {
-        if (videoPlayer == "omxpayer") {
+        if (videoPlayer == OMXPLAYER) {
             terminal = require('child_process').spawn('omxplayer', [videoPath]);
-        } else if (videoPlayer == "mplayer") {
+        } else if (videoPlayer == MPLAYER) {
             console.log('*********');
 
             var path = require('path');
@@ -443,7 +446,7 @@ if (fs.existsSync(confFilePath)) {
         homedir = config.config.defaultDirectory;
     }
     videoPlayer = config.config.defaultVideoPlayer;
-
+    console.log(videoPlayer);
 } else {
     // TODO: create folder if there is none
     //       windows .hidden folder creation 

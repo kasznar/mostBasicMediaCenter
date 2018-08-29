@@ -1,6 +1,6 @@
 const {app, BrowserWindow} = require('electron');
 
-var devMode = false;
+var devView = false;
 
 let mainWindow;
 
@@ -10,7 +10,7 @@ function createWindow () {
   mainWindow.loadFile('index.html');
   mainWindow.setMenu(null);
 
-  if(devMode){
+  if(devView){
     mainWindow.webContents.openDevTools();
     mainWindow.maximize();
   }else{
