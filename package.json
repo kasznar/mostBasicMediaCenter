@@ -33,7 +33,7 @@
     "email": "david@kasznar.hu"
   },
   "homepage": "kasznar.hu",
-  "license": "beerware",
+  "license": "Beerware",
   "devDependencies": {
     "electron": "^2.0.8",
     "electron-builder": "^20.28.2",
